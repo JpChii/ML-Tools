@@ -3,29 +3,57 @@
 
 import tensorflow as tf
 
-# Create a function to import an image and resize it to be able to be used with our model
-def load_and_prep_image(filename, img_shape=224, scale=True):
-  """
-  Reads in an image from filename, turns it into a tensor and reshapes into
-  (224, 224, 3).
+# Function to load and resize our image to be used with our model
+def load_and_prep_image(filepath, image_size=224):
 
-  Parameters
-  ----------
-  filename (str): string filename of target image
-  img_shape (int): size to resize target image to, default 224
-  scale (bool): whether to scale pixel values to range(0, 1), default True
   """
-  # Read in the image
-  img = tf.io.read_file(filename)
-  # Decode it into a tensor
-  img = tf.image.decode_jpeg(img)
-  # Resize the image
-  img = tf.image.resize(img, [img_shape, img_shape])
-  if scale:
-    # Rescale the image (get all values between 0 and 1)
-    return img/255.
-  else:
-    return img
+  Function loads and prepare the image for prediction provided a filepath and image_size
+
+  Args:
+  filepath: Path to the image
+  image_size: Reshapes the image to (imgage_size,image_size)
+
+  Prerequisites:
+  tensorflow as tf
+
+  Return:
+  Reshaped image with expanded dims
+  """
+
+  # Load in the image and resize it to (img_size, img_size)
+  loaded_image = tf.keras.preprocessing.image.load_img(filepath, target_size=(image_size, image_size))
+
+  # Convert the image to array
+  img_array = tf.keras.preprocessing.image.img_to_array(loaded_image)
+
+  # Adding dimension to accomodate batch size
+  img = tf.expand_dims(img_array, axis=0)
+
+  return img
+
+# # Create a function to import an image and resize it to be able to be used with our model db
+# def load_and_prep_image(filename, img_shape=224, scale=True):
+#   """
+#   Reads in an image from filename, turns it into a tensor and reshapes into
+#   (224, 224, 3).
+
+#   Parameters
+#   ----------
+#   filename (str): string filename of target image
+#   img_shape (int): size to resize target image to, default 224
+#   scale (bool): whether to scale pixel values to range(0, 1), default True
+#   """
+#   # Read in the image
+#   img = tf.io.read_file(filename)
+#   # Decode it into a tensor
+#   img = tf.image.decode_jpeg(img)
+#   # Resize the image
+#   img = tf.image.resize(img, [img_shape, img_shape])
+#   if scale:
+#     # Rescale the image (get all values between 0 and 1)
+#     return img/255.
+#   else:
+#     return img
 
 # Note: The following confusion matrix code is a remix of Scikit-Learn's 
 # plot_confusion_matrix function - https://scikit-learn.org/stable/modules/generated/sklearn.metrics.plot_confusion_matrix.html
