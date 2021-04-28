@@ -286,3 +286,22 @@ def calculate_results(y_true, y_pred):
                   "recall": model_recall,
                   "f1": model_f1}
   return model_results
+
+def get_random_file(target_dir, classes):
+
+  """
+  Chooses a random file provided a target_dir and classes and follows standard directory structure.
+  """
+
+  # Choose a random class
+  target_class = random.choice(classes)
+
+  # Set target directory
+  target_dir = target_dir + target_class
+
+  # Select a random file from target_directory
+  target_image = random.choice(os.listdir(target_dir))
+
+  filepath = target_dir + "/" + target_image
+
+  return filepath
