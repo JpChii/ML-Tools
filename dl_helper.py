@@ -135,30 +135,80 @@ def make_confusion_matrix(y_true, y_pred, classes=None, figsize=(10, 10), text_s
 
   # Save the figure to the current working directory
   if savefig:
-    fig.savefig("confusion_matrix.png")
+    fig.savefig("confusion_matrix.png") 
+
+# Function to plot a random iamge along with it's prediction 
+def pred_and_plot_random_image(model, classes, image_size, target_dir):
+  """
+  Function to plot a random image and it's prediction
+
+  Args:
+  model: model used fore predicting the image
+  classes: list of class names
+  image_size: target image size
+  target_dir: directory where images are residing
+
+  PreRequisites;
+  Follows the standard file structure for image classification train/classes, test/classes
+  get_random_file function
+  load_and_prep_image function
+
+  Libraries:
+  numpy
+  matplotlib
+
+  Return:
+  Plotted image with it's prediction
+  """
+
+  # get the filepath
+  file_path = get_random_file(target_dir=target_dir,
+                              classes=classes)
   
-# Make a function to predict on images and plot them (works with multi-class)
-def pred_and_plot(model, filename, class_names):
-  """
-  Imports an image located at filename, makes a prediction on it with
-  a trained model and plots the image with the predicted class as the title.
-  """
-  # Import the target image and preprocess it
-  img = load_and_prep_image(filename)
+  # Prep the image
+  img = load_and_prep_image(filepath=file_path, 
+                            image_size=image_size)
+  
+  # get prediction or prediction probabalities
+  preds = model.predict(img)
 
-  # Make a prediction
-  pred = model.predict(tf.expand_dims(img, axis=0))
-
-  # Get the predicted class
-  if len(pred[0]) > 1: # check for multi-class
-    pred_class = class_names[pred.argmax()] # if more than one output, take the max
+  # Checking the type of classification
+  if preds.size == 2:
+    print("Doing binary classification")
+    pred_class = classes[np.argmax(preds)]
   else:
-    pred_class = class_names[int(tf.round(pred)[0][0])] # if only one output, round
+    print("Doing multi-classification")
+    pred_class = classes[np.argmax(preds)]
 
-  # Plot the image and predicted class
-  plt.imshow(img)
-  plt.title(f"Prediction: {pred_class}")
-  plt.axis(False);
+  pred_possiblity = np.max(preds)
+
+  # Plotting the image
+  plt.imshow(plt.imread(file_path))
+  plt.title(f"Pred class: {pred_class}({np.round(pred_possiblity*100)})")
+  plt.axis(False)  
+  
+# # Make a function to predict on images and plot them (works with multi-class) db
+# def pred_and_plot(model, filename, class_names):
+#   """
+#   Imports an image located at filename, makes a prediction on it with
+#   a trained model and plots the image with the predicted class as the title.
+#   """
+#   # Import the target image and preprocess it
+#   img = load_and_prep_image(filename)
+
+#   # Make a prediction
+#   pred = model.predict(tf.expand_dims(img, axis=0))
+
+#   # Get the predicted class
+#   if len(pred[0]) > 1: # check for multi-class
+#     pred_class = class_names[pred.argmax()] # if more than one output, take the max
+#   else:
+#     pred_class = class_names[int(tf.round(pred)[0][0])] # if only one output, round
+
+#   # Plot the image and predicted class
+#   plt.imshow(img)
+#   plt.title(f"Prediction: {pred_class}")
+#   plt.axis(False);
   
 import datetime
 
@@ -333,3 +383,9 @@ def get_random_file(target_dir, classes):
   filepath = target_dir + "/" + target_image
 
   return filepath
+
+def save_model(model, model_name, target_dir):
+  """
+  Saves model in saved format in target directory
+  """
+  model.save(target_dir + "/" + model_name)
