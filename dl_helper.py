@@ -136,6 +136,10 @@ def make_confusion_matrix(y_true, y_pred, classes=None, figsize=(10, 10), text_s
   # Save the figure to the current working directory
   if savefig:
     fig.savefig("confusion_matrix.png") 
+    
+# Imports for the function
+import numpy as np
+import matplotlib.pyplot as plt
 
 # Function to plot a random iamge along with it's prediction 
 def pred_and_plot_random_image(model, classes, image_size, target_dir):
@@ -162,7 +166,7 @@ def pred_and_plot_random_image(model, classes, image_size, target_dir):
   """
 
   # get the filepath
-  file_path = get_random_file(target_dir=target_dir,
+  file_path, target_class = get_random_file(target_dir=target_dir,
                               classes=classes)
   
   # Prep the image
@@ -365,6 +369,12 @@ def calculate_results(y_true, y_pred):
                   "f1": model_f1}
   return model_results
 
+# Function to get random file path
+
+# Imports
+import os, random
+
+
 def get_random_file(target_dir, classes):
 
   """
@@ -382,7 +392,7 @@ def get_random_file(target_dir, classes):
 
   filepath = target_dir + "/" + target_image
 
-  return filepath
+  return filepath, target_class
 
 def save_model(model, model_name, target_dir):
   """
