@@ -141,33 +141,33 @@ def make_confusion_matrix(y_true, y_pred, classes=None, figsize=(10, 10), text_s
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Function to plot a random iamge along with it's prediction 
-def pred_and_plot_random_image(model, classes, image_size, target_dir):
+def pred_and_plot_single(model, classes, image_size, target_dir, target_class=None, custom_images=None):
   """
-  Function to plot a random image and it's prediction
-
+  Function to plot a image and it's prediction
+  
   Args:
-  model: model used fore predicting the image
-  classes: list of class names
-  image_size: target image size
-  target_dir: directory where images are residing
-
+    model: model used fore predicting the image
+    classes: list of class names
+    image_size: target image size
+    target_dir: target directory from where image is picked
+    target_class: class to be used for picking the image for prediction, None for custom images without labels
+    custom_images: For custom images with labels, default: None
   PreRequisites;
-  Follows the standard file structure for image classification train/classes, test/classes
-  get_random_file function
-  load_and_prep_image function
-
+    Follows the standard file structure for image classification train/classes, test/classes
+    get_random_file function
+    load_and_prep_image function
   Libraries:
-  numpy
-  matplotlib
-
+    numpy
+    matplotlib
   Return:
-  Plotted image with it's prediction
+    Plotted image with it's prediction
   """
 
   # get the filepath
-  file_path, target_class = get_random_file(target_dir=target_dir,
-                              classes=classes)
+  file_path, target_class = get_file_path(target_dir=target_dir,
+                                          classes=classes,
+                                          target_class=target_class,
+                                          custom_images=custom_images)
   
   # Prep the image
   img = load_and_prep_image(filepath=file_path, 
@@ -178,18 +178,74 @@ def pred_and_plot_random_image(model, classes, image_size, target_dir):
 
   # Checking the type of classification
   if preds.size == 2:
-    print("Doing binary classification")
     pred_class = classes[np.argmax(preds)]
   else:
-    print("Doing multi-classification")
     pred_class = classes[np.argmax(preds)]
 
   pred_possiblity = np.max(preds)
 
+  if target_class == pred_class:
+    title_color = "g"
+  elif custom_images == True:
+    title_color="b"
+  else:
+    title_color="r"
+
   # Plotting the image
   plt.imshow(plt.imread(file_path))
-  plt.title(f"Pred class: {pred_class}({np.round(pred_possiblity*100)})")
-  plt.axis(False)  
+  if custom_images == None:
+    title = f"Pred: {pred_class} {np.round(pred_possiblity*100):.2f}%, True: {target_class}"
+  else:
+    title = f"Pred: {pred_class}, {pred_possiblity*100:.2f}, custom image"
+  print(title)
+  plt.title(title, c=title_color)
+  plt.axis(False)
+  
+# Imports for the function
+import numpy as np
+import matplotlib.pyplot as plt
+
+def pred_and_plot_multiple(num_rows, num_cols, model, classes, image_size, target_dir, target_class=None, custom_images=None):
+
+  """
+  Predict's and plots multiple images
+
+  Args:
+    num_rows: number of rows in the plot
+    num_cols: number of columns in the plot
+      num_images: is calculated by num_rows * num_cols
+    model: model used for predicting the class of the image
+    classes: class names in the problem
+    image_size: image size of the input passed to model (image_size, image_size)
+    target_dir: target directory from where images are picked
+    target_class: class to be used for picking the image for prediction, None for custom images without labels
+    custom_images: For custom images with labels, default: None
+
+  Prerequiste Functions:
+    pred_and_plot_single
+    get_file_path
+    load_and_prep_image
+
+  Libraries:
+    matplotlib
+    numpy
+
+  Returns:
+    num_images plotted with true and predicted labels
+  """
+
+  num_images = num_rows * num_cols
+
+  plt.figure(figsize=(2*2*num_cols, 2*num_rows))
+  for image in range(num_images):
+    plt.subplot(num_rows, num_cols, image + 1)
+    pred_and_plot_single(model=model,
+                               classes=classes,
+                               image_size=image_size,
+                               target_dir=target_dir,
+                               target_class=target_class,
+                               custom_images=custom_images)
+
   
 # # Make a function to predict on images and plot them (works with multi-class) db
 # def pred_and_plot(model, filename, class_names):
@@ -375,17 +431,37 @@ def calculate_results(y_true, y_pred):
 import os, random
 
 
-def get_random_file(target_dir, classes):
+def get_file_path(target_dir, classes, target_class=None, custom_images=None):
 
   """
-  Chooses a random file provided a target_dir and classes and follows standard directory structure.
+  Chooses a  file provided a target_dir and target_class and follows standard directory structure.
+  If target_class is not passed, chooses a random class from classes and picks an file
+
+  Args:
+    target_dir: target directory from where image name is picked
+    classes: list of class names
+    target_class: class to be used for picking the image for prediction, None for custom images without labels
+    custom_images: For custom images with labels, default: None
+
+  PreRequisites;
+    Follows the standard file structure for image classification train/classes, test/classes
+
+  Returns:
+    filepath
+    target_class
   """
 
-  # Choose a random class
-  target_class = random.choice(classes)
+  if target_class == None and custom_images == None:
+    # Choose a random class
+    target_class = random.choice(classes)
+  else:
+    target_class = target_class
 
-  # Set target directory
-  target_dir = target_dir + target_class
+  if custom_images == True:
+    # Set target directory
+    target_dir = target_dir
+  else:
+    target_dir = target_dir + target_class
 
   # Select a random file from target_directory
   target_image = random.choice(os.listdir(target_dir))
