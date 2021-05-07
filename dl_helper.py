@@ -119,7 +119,7 @@ def make_confusion_matrix(y_true, y_pred, classes=None, figsize=(10, 10), text_s
 
   ### Added: Rotate xticks for readability & increase font size (required due to such a large confusion matrix)
   plt.xticks(rotation=70, fontsize=text_size)
-  plt.yticks(fontsize=text_size)
+  plt.yticks(rotation=90, fontsize=text_size)
 
   # Set the threshold for different colors
   threshold = (cm.max() + cm.min()) / 2.
