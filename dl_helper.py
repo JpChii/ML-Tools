@@ -479,3 +479,32 @@ def save_model(model, model_name, target_dir):
   Saves model in saved format in target directory
   """
   model.save(target_dir + "/" + model_name)
+
+import matplotlib.pyplot as plt
+import os, random
+import tensorflow as tf
+from tensorflow.keras.preprocessing.image import load_img, img_to_array
+
+# Function to view random image n computer vision problems
+def view_random_image(target_dir, classes):
+  """
+  Function to view random images in computer vision
+
+  PreRequisite:
+    Standard Computer vision directory structure
+
+  Args:
+    target_dir: Directory from wherer images are picked
+    classes: list of classes
+  """
+  target_class = random.choice(classes)
+  target_dir = target_dir + "/" + target_class
+  target_image = random.choice(os.listdir(target_dir))
+  img_path = target_dir + "/" + target_image
+
+  loaded_image = load_img(img_path)
+  image_array = img_to_array(loaded_image)
+
+  plt.imshow(image_array/255.)
+  plt.axis(False)
+  plt.title(f"Class: {target_class}, Shape: {image_array.shape}")
