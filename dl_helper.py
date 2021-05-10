@@ -508,3 +508,31 @@ def view_random_image(target_dir, classes):
   plt.imshow(image_array/255.)
   plt.axis(False)
   plt.title(f"Class: {target_class}, Shape: {image_array.shape}")
+
+import matplotlib.pyplot as plt
+import os, random
+import tensorflow as tf
+from tensorflow.keras.preprocessing.image import load_img, img_to_array
+
+# Function to view multiple images
+def view_many_random_images(num_rows, num_cols, target_dir, classes):
+  """
+  To get one with the data, function to view multiple images using `view_random_image`
+
+  PreRequisite:
+  Standard Computer vision directory structure
+
+  Args:
+    num_rows: number of rows
+    num_cols: number of columns
+    target_dir: Directory from wherer images are picked
+    classes: list of classes
+    num_rows * num_images random images will be plotted
+  """
+
+  num_images = num_rows * num_cols
+  plt.figure(figsize=(2*2*num_cols, 2*num_rows))
+  for image in range(num_images):
+    plt.subplot(num_rows, num_cols, image + 1)
+    view_random_image(target_dir=target_dir,
+                      classes=classes)
